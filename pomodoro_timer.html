@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#eee8fa">
+<title>Study & Bloom — Pomodoro Timer</title>
+<style>
+:root{--lav:#b9a4df;--lav-dark:#7961a8;--yellow:#fff0ad;--blue:#dceeff;--ink:#37334a;--muted:#777187;--paper:#fffdfb}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:radial-gradient(circle at 10% 5%,#fff5c8 0,transparent 28%),radial-gradient(circle at 90% 15%,#dbeeff 0,transparent 30%),linear-gradient(135deg,#f7f0ff,#fffdf9);display:flex;justify-content:center;padding:24px}
+main{width:min(760px,100%)}.hero{text-align:center;margin:8px 0 22px}.eyebrow{letter-spacing:.15em;text-transform:uppercase;color:var(--lav-dark);font-size:.75rem;font-weight:800}.hero h1{font-family:Georgia,serif;font-weight:600;font-size:clamp(2.2rem,7vw,3.7rem);margin:8px 0}.hero p{color:var(--muted);margin:0}.card{background:#ffffffdc;border:1px solid #fff;border-radius:26px;padding:clamp(18px,4vw,30px);box-shadow:0 14px 45px #67518a12;margin:16px 0}.tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.tab,button{font:inherit;border:0;cursor:pointer;transition:transform .12s,filter .12s}.tab{border-radius:999px;padding:10px 15px;background:#f2edf9;color:var(--ink)}.tab.active{background:var(--lav-dark);color:white}.timer{text-align:center;padding:22px 0 8px}.mode-label{font-weight:700;color:var(--lav-dark)}#clock{font-variant-numeric:tabular-nums;font-size:clamp(4.2rem,18vw,7.8rem);font-weight:750;letter-spacing:-.055em;line-height:1.2;margin:8px 0}.progress{height:9px;background:#eee9f5;border-radius:99px;overflow:hidden;margin:18px 0 5px}.progress span{height:100%;width:0;display:block;background:linear-gradient(90deg,#a68bd3,#d4c5f0);border-radius:99px;transition:width .25s}.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:20px 0 8px}button{border-radius:14px;padding:12px 20px;font-weight:700;background:var(--blue);color:var(--ink)}button:hover,.tab:hover{filter:brightness(.97);transform:translateY(-1px)}button.primary{background:var(--lav-dark);color:#fff;min-width:150px}button.soft{background:#f3eef9}button:focus-visible,.tab:focus-visible,input:focus-visible{outline:3px solid #5f4a8e;outline-offset:3px}.small-note{text-align:center;color:var(--muted);font-size:.86rem;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.setting{background:#fbf9ff;border-radius:16px;padding:14px}.setting label{display:block;font-size:.88rem;font-weight:700;margin-bottom:8px}.stepper{display:flex;align-items:center;justify-content:space-between;gap:8px}.stepper button{padding:7px 11px;border-radius:10px}.stepper output{font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums}.statrow{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}.stat{background:#fff8d9;padding:12px 18px;border-radius:15px;text-align:center;min-width:120px}.stat strong{font-size:1.45rem;display:block}.stat span{font-size:.82rem;color:var(--muted)}.dots{display:flex;gap:8px;justify-content:center;margin-top:14px}.dot{height:13px;width:13px;border-radius:50%;background:#e8e1f1}.dot.done{background:#9277c0}.alarm-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.alarm-row h2,.card h2{font-size:1.15rem;margin:0 0 6px}.alarm-row p{font-size:.88rem;color:var(--muted);margin:0}.toggle{display:flex;gap:9px;align-items:center;font-weight:650}.toggle input{width:20px;height:20px;accent-color:var(--lav-dark)}.test-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.alarm-status{margin-top:12px;font-size:.87rem;color:var(--muted)}.footer{text-align:center;font-size:.8rem;color:var(--muted);padding:8px 10px 24px}.notice{padding:12px 14px;background:#fff7d8;border-radius:14px;font-size:.88rem;line-height:1.5;margin-top:12px}
+@media(max-width:560px){body{padding:14px}.grid{grid-template-columns:1fr}.setting{display:flex;align-items:center;justify-content:space-between;gap:12px}.setting label{margin:0}.card{border-radius:22px}.alarm-row{align-items:flex-start}}
+</style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <div class="eyebrow">✦ little steps, big things ✦</div>
+    <h1>Study &amp; Bloom</h1>
+    <p>Jouw gezellige plek om te focussen en op tijd pauze te nemen.</p>
+  </header>
+
+  <section class="card" aria-label="Pomodoro timer">
+    <nav class="tabs" aria-label="Timerstand">
+      <button class="tab active" data-mode="focus">📚 Focus</button>
+      <button class="tab" data-mode="short">☕ Korte pauze</button>
+      <button class="tab" data-mode="long">🌷 Lange pauze</button>
+    </nav>
+    <div class="timer">
+      <div class="mode-label" id="modeLabel">Tijd om te focussen ✨</div>
+      <div id="clock" role="timer" aria-live="off">25:00</div>
+      <div id="subLabel">Je kunt dit. Eén stap tegelijk.</div>
+      <div class="progress" aria-label="Voortgang"><span id="progress"></span></div>
+    </div>
+    <div class="controls">
+      <button class="primary" id="startPause">▶ Start</button>
+      <button class="soft" id="reset">↺ Opnieuw</button>
+      <button class="soft" id="skip">Volgende ⟶</button>
+    </div>
+    <p class="small-note" id="runStatus">Druk op Start om te beginnen.</p>
+  </section>
+
+  <section class="card">
+    <h2>⚙️ Stel je tijden in</h2>
+    <div class="grid">
+      <div class="setting"><label for="focusNum">📚 Focus (min)</label><div class="stepper"><button data-adjust="focus" data-delta="-1" aria-label="Focus korter">−</button><output id="focusOut">25</output><button data-adjust="focus" data-delta="1" aria-label="Focus langer">+</button></div></div>
+      <div class="setting"><label for="shortNum">☕ Korte pauze</label><div class="stepper"><button data-adjust="short" data-delta="-1" aria-label="Korte pauze korter">−</button><output id="shortOut">5</output><button data-adjust="short" data-delta="1" aria-label="Korte pauze langer">+</button></div></div>
+      <div class="setting"><label for="longNum">🌷 Lange pauze</label><div class="stepper"><button data-adjust="long" data-delta="-1" aria-label="Lange pauze korter">−</button><output id="longOut">15</output><button data-adjust="long" data-delta="1" aria-label="Lange pauze langer">+</button></div></div>
+    </div>
+    <p class="small-note" style="margin-bottom:0">Gebruik + en − om de tijden aan te passen. De timer past zich aan als hij stilstaat.</p>
+  </section>
+
+  <section class="card">
+    <h2>🌟 Jouw voortgang</h2>
+    <div class="statrow">
+      <div class="stat"><strong id="sessions">0</strong><span>focusrondes afgerond</span></div>
+      <div class="stat"><strong id="streak">○ ○ ○ ○</strong><span>tot de lange pauze</span></div>
+    </div>
+    <div class="dots" id="dots" aria-label="Voortgang naar lange pauze"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  </section>
+
+  <section class="card">
+    <div class="alarm-row">
+      <div><h2>🔔 Hoorbare wekker</h2><p>Een geluid als de timer klaar is, ook als je naar een ander tabblad of bestand gaat.</p></div>
+      <label class="toggle"><input type="checkbox" id="alarmOn" checked> Geluid aan</label>
+    </div>
+    <div class="test-row">
+      <button class="soft" id="testAlarm">▶ Test geluid</button>
+      <button class="soft" id="stopAlarm">■ Stop geluid</button>
+    </div>
+    <div class="alarm-status" id="alarmStatus">Geluid staat aan. Klik eerst op Start om audio te activeren.</div>
+    <div class="notice"><strong>Goed om te weten:</strong> het geluid werkt zolang dit timer-tabblad open blijft. Laat het niet sluiten. Sommige browsers of apparaten kunnen geluid op de achtergrond beperken; zet je apparaat niet op stil en test de wekker even.</div>
+  </section>
+  <div class="footer">Gemaakt voor jouw volgende kleine overwinning ✿</div>
+</main>
+<script>
+(() => {
+  const durations = {focus:25, short:5, long:15};
+  const labels = {focus:"Tijd om te focussen ✨",short:"Even opladen ☕",long:"Lekker lang ontspannen 🌷"};
+  const hints = {focus:"Je kunt dit. Eén stap tegelijk.",short:"Sta even op, drink wat water.",long:"Goed gewerkt! Neem rustig de tijd."};
+  let mode = "focus", remaining = durations.focus * 60, running = false;
+  let deadline = null, interval = null, sessions = 0, alarmTimer = null, audioCtx = null, alarmNodes = [];
+  const $ = id => document.getElementById(id);
+  const clock = $("clock"), startPause = $("startPause");
+  function fmt(n){ n=Math.max(0,Math.ceil(n)); return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0"); }
+  function update(){
+    clock.textContent=fmt(remaining);
+    document.title=(running?"⏳ ":"")+fmt(remaining)+" — Study & Bloom";
+    $("modeLabel").textContent=labels[mode]; $("subLabel").textContent=hints[mode];
+    $("progress").style.width=(100*(1-remaining/(durations[mode]*60)))+"%";
+    document.querySelectorAll("[data-mode]").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
+    $("sessions").textContent=sessions;
+    $("streak").textContent=(sessions%4===0&&sessions>0)?"🌷 Pauze!":`${sessions%4}/4`;
+    document.querySelectorAll(".dot").forEach((d,i)=>d.classList.toggle("done",i<sessions%4));
+    startPause.textContent=running?"Ⅱ Pauze":"▶ Start";
+    $("runStatus").textContent=running?"Timer loopt — je kunt gerust naar een ander tabblad gaan.":"Timer staat stil.";
+    $("focusOut").textContent=durations.focus;$("shortOut").textContent=durations.short;$("longOut").textContent=durations.long;
+  }
+  function ensureAudio(){
+    try{
+      const Ctx=window.AudioContext||window.webkitAudioContext;
+      if(!Ctx) return false;
+      if(!audioCtx) audioCtx=new Ctx();
+      if(audioCtx.state==="suspended") audioCtx.resume();
+      return true;
+    }catch(e){return false;}
+  }
+  function beep(freq, start, length, gain=0.22){
+    if(!audioCtx) return;
+    const osc=audioCtx.createOscillator(), vol=audioCtx.createGain();
+    osc.type="sine";osc.frequency.value=freq;
+    vol.gain.setValueAtTime(0.0001,start);
+    vol.gain.exponentialRampToValueAtTime(gain,start+0.025);
+    vol.gain.setValueAtTime(gain,start+length*0.65);
+    vol.gain.exponentialRampToValueAtTime(0.0001,start+length);
+    osc.connect(vol);vol.connect(audioCtx.destination);osc.start(start);osc.stop(start+length+0.03);
+    alarmNodes.push(osc);
+    osc.onended=()=>{alarmNodes=alarmNodes.filter(n=>n!==osc);};
+  }
+  function stopAlarm(){
+    if(alarmTimer){clearInterval(alarmTimer);alarmTimer=null;}
+    alarmNodes.forEach(n=>{try{n.stop()}catch(e){}});
+    alarmNodes=[];
+    $("alarmStatus").textContent=$("alarmOn").checked?"Wekker staat klaar.":"Geluid staat uit.";
+  }
+  function playPattern(){
+    if(!$("alarmOn").checked){$("alarmStatus").textContent="Timer klaar — geluid staat uit.";return;}
+    if(!ensureAudio()){$("alarmStatus").textContent="Je browser ondersteunt geen hoorbaar alarm. Probeer een andere browser.";return;}
+    stopAlarm();
+    const pattern=()=>{
+      if(!audioCtx)return;
+      const t=audioCtx.currentTime;
+      beep(880,t,0.24);beep(1175,t+0.32,0.24);beep(880,t+0.64,0.3);
+    };
+    pattern();
+    alarmTimer=setInterval(pattern,1500);
+    $("alarmStatus").textContent="🔔 Wekker gaat af! Klik op ‘Stop geluid’ om hem uit te zetten.";
+  }
+  function finish(){
+    running=false;deadline=null;clearInterval(interval);interval=null;
+    if(mode==="focus"){
+      sessions++;
+      mode=(sessions%4===0)?"long":"short";
+    } else mode="focus";
+    remaining=durations[mode]*60;
+    update();$("runStatus").textContent="Klaar! De volgende ronde staat klaar.";playPattern();
+  }
+  function tick(){
+    if(!running||deadline===null)return;
+    remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
+    if(remaining<=0){finish();return;}
+    update();
+  }
+  function start(){
+    stopAlarm();ensureAudio();
+    if(remaining<=0)remaining=durations[mode]*60;
+    running=true;deadline=Date.now()+remaining*1000;
+    clearInterval(interval);interval=setInterval(tick,200);update();
+  }
+  function pause(){
+    if(running&&deadline!==null)remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
+    running=false;deadline=null;clearInterval(interval);interval=null;update();
+  }
+  function reset(){pause();stopAlarm();remaining=durations[mode]*60;update();}
+  function switchMode(next){
+    pause();stopAlarm();mode=next;remaining=durations[mode]*60;update();
+  }
+  startPause.addEventListener("click",()=>{ensureAudio();running?pause():start()});
+  $("reset").addEventListener("click",reset);
+  $("skip").addEventListener("click",()=>{stopAlarm();if(mode==="focus"){sessions++;mode=(sessions%4===0)?"long":"short"}else mode="focus";pause();remaining=durations[mode]*60;update();});
+  document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>switchMode(b.dataset.mode)));
+  document.querySelectorAll("[data-adjust]").forEach(b=>b.addEventListener("click",()=>{
+    const key=b.dataset.adjust;durations[key]=Math.max(1,Math.min(key==="focus"?180:60,durations[key]+Number(b.dataset.delta)));
+    if(!running&&mode===key)remaining=durations[key]*60;update();
+  }));
+  $("testAlarm").addEventListener("click",()=>{ensureAudio();playPattern()});
+  $("stopAlarm").addEventListener("click",stopAlarm);
+  $("alarmOn").addEventListener("change",()=>{if(!$("alarmOn").checked)stopAlarm();else $("alarmStatus").textContent="Geluid staat aan. Klik op ‘Test geluid’ om het te controleren."});
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&running)tick()});
+  window.addEventListener("focus",()=>{if(running)tick()});
+  update();
+})();
+</script>
+</body>
+</html>
